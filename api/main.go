@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Images struct{
+type Images struct {
 	gorm.Model
 	Name string
 }
@@ -27,7 +27,11 @@ func main() {
 	db.AutoMigrate(&Images{})
 
 	router.POST("/api/upload", func(c *gin.Context) {
-		file, _ := c.FormFile("file")
+		file, err := c.FormFile("file")
+		if err != nil {
+			c.String(http.StatusBadRequest, "ファイル取得エラー")
+			return
+		}
 		log.Println(file.Filename)
 
 		image := Images{Name: file.Filename}
