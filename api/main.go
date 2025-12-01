@@ -5,22 +5,35 @@ import (
 	"log"
 	"net/http"
 
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
+type Images struct{
+	gorm.Model
+	Name string
+}
+
 func main() {
-  router := gin.Default()
-  router.Use(cors.Default())
-  router.MaxMultipartMemory = 8 << 20  // 8 MiB
+	router := gin.Default()
+	router.Use(cors.Default())
+	router.MaxMultipartMemory = 8 << 20 // 8 MiB
 
-  router.POST("/upload", func(c *gin.Context) {
-    file, _ := c.FormFile("file")
-    log.Println(file.Filename)
+	dsn := "host=postgres user=user password=password dbname=images port=5432 sslmode=disable TimeZone=Asia/Tokyo"
+	db, _ := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db.AutoMigrate(&Images{})
 
-    c.SaveUploadedFile(file, "./files/" + file.Filename)
+	router.POST("/upload", func(c *gin.Context) {
+		file, _ := c.FormFile("file")
+		log.Println(file)
 
-    c.String(http.StatusOK, fmt.Sprintf("'%s' uploaded!", file.Filename))
-  })
-  router.Run(":8080")
+		image := Images{Name: file.Filename}
+		db.Create(&image)
+
+		c.String(http.StatusOK, fmt.Sprintf("'%s' uploaded!", file.Filename))
+	})
+	router.Run(":8080")
 }
