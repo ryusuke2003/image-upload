@@ -8,7 +8,6 @@ import (
 )
 
 func main(){
-	api := "localhost:8080"
 	r := gin.Default()
 
 	r.Use(cors.Default())
@@ -18,5 +17,5 @@ func main(){
 			"message": "pong",
 		})
 	})
-	r.Run(api)
+	r.Run()
 }
