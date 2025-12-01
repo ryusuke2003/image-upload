@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:14.6
+    platform: linux/x86_64
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: images
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - data-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "user", "-d", "images"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    tty: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  data-volume:
