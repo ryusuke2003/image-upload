@@ -29,17 +29,35 @@ function App() {
     }
   }
 
-  const upload = () => {
+  const upload = async () => {
     if (!file) {
       alert("ファイルを選択してください")
       return
     }
-    setFile(null)
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("http://localhost:8080/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.ok) {
+        console.log("アップロード成功");
+      } else {
+        console.log("サーバーエラー:", res.status);
+      }
+    } catch (error) {
+      console.log("ネットワークエラー:", error);
     }
-  }
+
+    setFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   return (
     <>
