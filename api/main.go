@@ -28,12 +28,12 @@ func main() {
 
 	router.POST("/upload", func(c *gin.Context) {
 		file, _ := c.FormFile("file")
-		log.Println(file)
+		log.Println(file.Size)
 
 		image := Images{Name: file.Filename}
 		db.Create(&image)
 
-		c.String(http.StatusOK, fmt.Sprintf("'%s' uploaded!", file.Filename))
+		c.String(http.StatusOK, fmt.Sprintf("'%s' uploaded!", file.Size))
 	})
 	router.Run(":8080")
 }
