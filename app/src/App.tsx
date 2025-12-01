@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 function App() {
 
   const [file, setFile] = useState<File | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
     console.log(file?.name)
@@ -21,6 +22,10 @@ function App() {
     } else {
       alert("PNGかJPEGの画像を選択してください")
       setFile(null)
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
     }
   }
 
@@ -30,12 +35,16 @@ function App() {
       return
     }
     setFile(null)
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
   }
 
   return (
     <>
       <div>
-        <input type="file" onChange={change} accept="image/png,image/jpeg"/>
+        <input type="file" onChange={change} accept="image/png,image/jpeg" ref={fileInputRef} />
       </div>
       <div>
         <button onClick={upload}>アップロード</button>
