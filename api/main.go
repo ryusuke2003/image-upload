@@ -26,14 +26,14 @@ func main() {
 	db, _ := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	db.AutoMigrate(&Images{})
 
-	router.POST("/upload", func(c *gin.Context) {
+	router.POST("/api/upload", func(c *gin.Context) {
 		file, _ := c.FormFile("file")
-		log.Println(file.Size)
+		log.Println(file.Filename)
 
 		image := Images{Name: file.Filename}
 		db.Create(&image)
 
-		c.String(http.StatusOK, fmt.Sprintf("'%s' uploaded!", file.Size))
+		c.String(http.StatusOK, fmt.Sprintf("'%s' uploaded!", file.Filename))
 	})
 	router.Run(":8080")
 }
