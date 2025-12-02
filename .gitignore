@@ -1,0 +1,20 @@
+# --- 全体共通 ---
+# OSの自動生成ファイル
+.DS_Store
+Thumbs.db
+
+# VS Codeの設定（プロジェクト全体で無視）
+.vscode/
+
+# 環境変数（重要：絶対にコミットしない）
+.env
+
+# --- バックエンド (api) ---
+# apiフォルダ内のビルド生成物やログを無視
+api/tmp/
+api/main
+api/main.exe
+api/*.log
+
+# もしルートにも go.mod などがあるなら、ルートのログも無視
+*.log
