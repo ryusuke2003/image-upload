@@ -65,8 +65,25 @@ function App() {
         return;
       }
 
-      console.log("アップロード成功！ objectKey:", objectKey);
-      alert("アップロード成功！");
+      console.log("S3へのアップロード成功！ objectKey:", objectKey);
+      alert("S3へのアップロード成功！");
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res3 = await fetch("/api/saveImage", {
+        method: "POST",
+        body: formData,
+      });
+
+      if(!res3.ok){
+        console.log("DBアップロードエラー", res3.status);
+        alert("DBへのアップロードに失敗しました");
+        return;
+      }
+
+      console.log("DBへのアップロード成功！ objectKey:", objectKey);
+      alert("DBへのアップロード成功！");
 
       setFile(null);
       if (fileInputRef.current) {
@@ -75,25 +92,6 @@ function App() {
     } catch (error) {
       console.log("ネットワークエラー", error)
     }
-
-    // const formData = new FormData();
-    // formData.append("file", file);
-
-    // try {
-    //   const res = await fetch("/api/saveImage", {
-    //     method: "POST",
-    //     body: formData,
-    //   });
-
-    //   if (res.ok) {
-    //     console.log("アップロード成功");
-    //   } else {
-    //     console.log("サーバーエラー:", res.status);
-    //   }
-    // } catch (error) {
-    //   console.log("ネットワークエラー:", error);
-    // }
-
   };
 
   return (
