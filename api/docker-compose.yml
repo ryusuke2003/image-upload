@@ -5,16 +5,16 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: images
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       TZ: Asia/Tokyo
       POSTGRES_TZ: Asia/Tokyo
       
     volumes:
       - data-volume:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "user", "-d", "images"]
+      test: ["CMD", "pg_isready", "-U", "${DB_USER}", "-d", "${DB_DATABASE}"]
       interval: 10s
       timeout: 5s
       retries: 5
