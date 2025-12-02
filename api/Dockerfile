@@ -1,14 +1,7 @@
-# builder ステージ
-FROM golang:1.25.4 AS builder
+FROM golang:1.25.4
 WORKDIR /app
+RUN go install github.com/air-verse/air@latest
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN go build -o main .
-
-# 実行ステージ（軽量化）
-FROM debian:bookworm-slim
-WORKDIR /app
-COPY --from=builder /app/main .
-EXPOSE 8080
-CMD ["./main"]
+CMD ["air"]
