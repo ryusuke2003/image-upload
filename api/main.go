@@ -139,6 +139,10 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 			return
 		}
+		if req.ContentType != "image/png" && req.ContentType != "image/jpeg" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "PNG or JPEG only"})
+			return
+		}
 
 		image := Images{
 			ObjectKey:   req.ObjectKey,
@@ -148,7 +152,7 @@ func main() {
 		}
 		db.Create(&image)
 
-		 c.JSON(http.StatusOK, gin.H{"id": image.ID})
+		c.JSON(http.StatusOK, gin.H{"id": image.ID})
 	})
 	router.Run(":8080")
 }
