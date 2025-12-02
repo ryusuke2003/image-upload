@@ -118,7 +118,6 @@ function App() {
       const res1 = await fetch("/api/upload-url", {
         method: "POST",
         body: JSON.stringify(fileForReq),
-        headers: { "Content-Type": "application/json" }
       });
 
       if (!res1.ok) throw new Error(`サーバーエラー: ${res1.status}`);
@@ -136,7 +135,6 @@ function App() {
 
       if (!res2.ok) throw new Error(`ストレージへのアップロードに失敗しました: ${res2.status}`);
 
-      // Step 3
       const res3 = await fetch("/api/saveImage", {
         method: "POST",
         body: JSON.stringify({
