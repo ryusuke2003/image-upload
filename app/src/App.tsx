@@ -31,23 +31,41 @@ function App() {
       return
     }
 
-    const formData = new FormData();
-    formData.append("file", file);
+    const  fileForReq = {
+      fileName: file.name
+    }
 
     try {
-      const res = await fetch("/api/upload", {
+      const res1 = await fetch("/api/upload-url", {
         method: "POST",
-        body: formData,
-      });
-
-      if (res.ok) {
-        console.log("アップロード成功");
+        body: JSON.stringify(fileForReq)
+      })
+      if (res1.ok) {
+        console.log("成功", res1)
       } else {
-        console.log("サーバーエラー:", res.status);
+        console.log("サーバーエラー", res1.status)
       }
     } catch (error) {
-      console.log("ネットワークエラー:", error);
+      console.log("ネットワークエラー", error)
     }
+
+    // const formData = new FormData();
+    // formData.append("file", file);
+
+    // try {
+    //   const res = await fetch("/api/saveImage", {
+    //     method: "POST",
+    //     body: formData,
+    //   });
+
+    //   if (res.ok) {
+    //     console.log("アップロード成功");
+    //   } else {
+    //     console.log("サーバーエラー:", res.status);
+    //   }
+    // } catch (error) {
+    //   console.log("ネットワークエラー:", error);
+    // }
 
     setFile(null);
     if (fileInputRef.current) {
