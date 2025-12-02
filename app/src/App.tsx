@@ -68,15 +68,17 @@ function App() {
       console.log("S3へのアップロード成功！ objectKey:", objectKey);
       alert("S3へのアップロード成功！");
 
-      const formData = new FormData();
-      formData.append("file", file);
-
       const res3 = await fetch("/api/saveImage", {
         method: "POST",
-        body: formData,
+        body: JSON.stringify({
+          objectKey,
+          fileName: file.name,
+          contentType: file.type,
+          size: file.size,
+        }),
       });
 
-      if(!res3.ok){
+      if (!res3.ok) {
         console.log("DBアップロードエラー", res3.status);
         alert("DBへのアップロードに失敗しました");
         return;
