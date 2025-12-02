@@ -27,6 +27,8 @@ services:
     tty: true
     volumes:
       - .:/app
+    env_file:
+      - api/.env
     depends_on:
       postgres:
         condition: service_healthy
