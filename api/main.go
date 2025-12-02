@@ -52,11 +52,13 @@ func (presigner *Presigner) PutObject(
 	ctx context.Context,
 	bucketName string,
 	objectKey string,
+	contentType string, 
 	lifetimeSecs int64,
 ) (*v4.PresignedHTTPRequest, error) {
 	request, err := presigner.PresignClient.PresignPutObject(ctx, &s3.PutObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(objectKey),
+		ContentType: aws.String(contentType),
 	}, func(opts *s3.PresignOptions) {
 		opts.Expires = time.Duration(lifetimeSecs * int64(time.Second))
 	})
@@ -95,6 +97,7 @@ func main() {
 	router.POST("/api/upload-url", func(c *gin.Context) {
 		var req struct {
 			FileName string `json:"fileName"`
+			ContentType string `json:"contentType"`
 		}
 		if err := c.BindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
@@ -107,6 +110,7 @@ func main() {
             c.Request.Context(),
             bucket,
             objectKey,
+			req.ContentType,
             60*5,
         )		
 		if err != nil {

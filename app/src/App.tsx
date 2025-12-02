@@ -31,8 +31,9 @@ function App() {
       return
     }
 
-    const  fileForReq = {
-      fileName: file.name
+    const fileForReq = {
+      fileName: file.name,
+      contentType: file.type,
     }
 
     try {
@@ -40,10 +41,36 @@ function App() {
         method: "POST",
         body: JSON.stringify(fileForReq)
       })
-      if (res1.ok) {
-        console.log("成功", res1)
-      } else {
-        console.log("サーバーエラー", res1.status)
+      if (!res1.ok) {
+        console.log("サーバーエラー", res1.status);
+        alert("アップロードURLの取得に失敗しました");
+        return;
+      }
+      const { uploadURL, objectKey } = await res1.json() as {
+        uploadURL: string;
+        objectKey: string;
+      };
+
+      const res2 = await fetch(uploadURL, {
+        method: "PUT",
+        headers: {
+          "Content-Type": file.type,
+        },
+        body: file
+      })
+
+      if (!res2.ok) {
+        console.log("S3アップロードエラー", res2.status);
+        alert("S3へのアップロードに失敗しました");
+        return;
+      }
+
+      console.log("アップロード成功！ objectKey:", objectKey);
+      alert("アップロード成功！");
+
+      setFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
       }
     } catch (error) {
       console.log("ネットワークエラー", error)
@@ -67,10 +94,6 @@ function App() {
     //   console.log("ネットワークエラー:", error);
     // }
 
-    setFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
   };
 
   return (
