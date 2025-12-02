@@ -48,7 +48,7 @@ func NewPresigner(ctx context.Context) (*Presigner, error){
 	}, nil
 }
 
-func (presigner Presigner) PutObject(
+func (presigner *Presigner) PutObject(
 	ctx context.Context,
 	bucketName string,
 	objectKey string,
@@ -63,8 +63,9 @@ func (presigner Presigner) PutObject(
 	if err != nil {
 		log.Printf("Couldn't get a presigned request to put %v:%v. Here's why: %v\n",
 			bucketName, objectKey, err)
+		return nil, err
 	}
-	return request, err
+	return request, nil
 }
 
 func main() {
@@ -85,7 +86,10 @@ func main() {
 	router.MaxMultipartMemory = 8 << 20 // 8 MiB
 
 	dsn := "host=postgres user=user password=password dbname=images port=5432 sslmode=disable TimeZone=Asia/Tokyo"
-	db, _ := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("failed to connect DB: %v", err)
+	}
 	db.AutoMigrate(&Images{})
 
 	router.POST("/api/upload-url", func(c *gin.Context) {
