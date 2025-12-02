@@ -87,7 +87,24 @@ func main() {
 	}
 
 	router := gin.Default()
-	router.Use(cors.Default())
+	router.Use(cors.New(cors.Config{
+    AllowOrigins: []string{
+        "http://localhost:5173",
+    },
+    AllowMethods: []string{
+        "POST", 
+        "GET", 
+        "OPTIONS", 
+        "PUT", 
+        "DELETE",
+    },
+    AllowHeaders: []string{
+        "Origin", 
+        "Content-Type", 
+        "Content-Length",
+    },
+    MaxAge: 12 * time.Hour,
+}))
 	router.MaxMultipartMemory = 8 << 20 // 8 MiB
 
 	dsn := "host=postgres user=user password=password dbname=images port=5432 sslmode=disable TimeZone=Asia/Tokyo"
