@@ -28,7 +28,7 @@ services:
     volumes:
       - .:/app
     env_file:
-      - api/.env
+      - .env
     depends_on:
       postgres:
         condition: service_healthy
