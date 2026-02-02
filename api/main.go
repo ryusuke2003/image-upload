@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path"
 	"time"
 
 	"gorm.io/driver/postgres"
@@ -132,7 +133,8 @@ func main() {
 			return
 		}
 
-		objectKey := fmt.Sprintf("uploads/%s_%s", uuid.NewString(), req.FileName)
+		safeName := path.Base(req.FileName)
+		objectKey := fmt.Sprintf("uploads/%s_%s", uuid.NewString(), safeName)
 
 		signedReq, err := presigner.PutObject(
 			c.Request.Context(),
