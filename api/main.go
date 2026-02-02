@@ -102,7 +102,16 @@ func main() {
 		MaxAge: 12 * time.Hour,
 	}))
 	router.MaxMultipartMemory = 8 << 20
-	dsn := "host=postgres user=user password=password dbname=images port=5432 sslmode=disable TimeZone=Asia/Tokyo"
+	
+	dsn := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Tokyo",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_DATABASE"),
+		os.Getenv("DB_PORT"),
+	)
+
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("failed to connect DB: %v", err)
