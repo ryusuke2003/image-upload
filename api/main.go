@@ -104,7 +104,6 @@ func main() {
 		},
 		MaxAge: 12 * time.Hour,
 	}))
-	router.MaxMultipartMemory = 8 << 20
 
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Tokyo",
