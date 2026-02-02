@@ -88,25 +88,20 @@ func main() {
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
-    AllowOrigins: []string{
-        "http://localhost:5173",
-    },
-    AllowMethods: []string{
-        "POST", 
-        "GET", 
-        "OPTIONS", 
-        "PUT", 
-        "DELETE",
-    },
-    AllowHeaders: []string{
-        "Origin", 
-        "Content-Type", 
-        "Content-Length",
-    },
-    MaxAge: 12 * time.Hour,
-}))
-	router.MaxMultipartMemory = 8 << 20 // 8 MiB
-
+		AllowOrigins: []string{
+			"http://localhost:5173",
+		},
+		AllowMethods: []string{
+			"POST",
+		},
+		AllowHeaders: []string{
+			"Origin",
+			"Content-Type",
+			"Content-Length",
+		},
+		MaxAge: 12 * time.Hour,
+	}))
+	router.MaxMultipartMemory = 8 << 20
 	dsn := "host=postgres user=user password=password dbname=images port=5432 sslmode=disable TimeZone=Asia/Tokyo"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
@@ -124,6 +119,11 @@ func main() {
 			return
 		}
 
+		if req.ContentType != "image/png" && req.ContentType != "image/jpeg" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "PNG or JPEG only"})
+			return
+		}
+
 		objectKey := fmt.Sprintf("uploads/%d_%s", time.Now().Unix(), req.FileName)
 
 		signedReq, err := presigner.PutObject(
@@ -131,7 +131,7 @@ func main() {
 			bucket,
 			objectKey,
 			req.ContentType,
-			60*5,
+			30,
 		)
 		if err != nil {
 			log.Println("failed to create presigned url:", err)
@@ -149,15 +149,11 @@ func main() {
 		var req struct {
 			ObjectKey   string `json:"objectKey"`
 			FileName    string `json:"fileName"`
-			ContentType string `json:"contentType"`
+			ContentType string `binding:"required,oneof=image/png image/jpeg"`
 			Size        int64  `json:"size"`
 		}
 		if err := c.BindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
-			return
-		}
-		if req.ContentType != "image/png" && req.ContentType != "image/jpeg" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "PNG or JPEG only"})
 			return
 		}
 
@@ -167,9 +163,13 @@ func main() {
 			ContentType: req.ContentType,
 			Size:        req.Size,
 		}
-		db.Create(&image)
 
-		c.JSON(http.StatusOK, gin.H{"id": image.ID})
+		if err := db.Create(&image).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save image"})
+			return
+		}
+
+		c.JSON(http.StatusCreated, image)
 	})
 	router.Run(":8080")
 }
