@@ -18,6 +18,8 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+
+	"github.com/google/uuid"
 )
 
 type Images struct {
@@ -102,7 +104,7 @@ func main() {
 		MaxAge: 12 * time.Hour,
 	}))
 	router.MaxMultipartMemory = 8 << 20
-	
+
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Tokyo",
 		os.Getenv("DB_HOST"),
@@ -133,7 +135,7 @@ func main() {
 			return
 		}
 
-		objectKey := fmt.Sprintf("uploads/%d_%s", time.Now().Unix(), req.FileName)
+		objectKey := fmt.Sprintf("uploads/%s_%s", uuid.NewString(), req.FileName)
 
 		signedReq, err := presigner.PutObject(
 			c.Request.Context(),
