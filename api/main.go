@@ -121,17 +121,14 @@ func main() {
 	db.AutoMigrate(&Images{})
 
 	router.POST("/api/upload-url", func(c *gin.Context) {
-		var req struct {
-			FileName    string `json:"fileName"`
-			ContentType string `json:"contentType"`
-		}
-		if err := c.BindJSON(&req); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
-			return
+		type UploadURLRequest struct {
+			FileName    string `json:"fileName" binding:"required"`
+			ContentType string `json:"contentType" binding:"required,oneof=image/png image/jpeg"`
 		}
 
-		if req.ContentType != "image/png" && req.ContentType != "image/jpeg" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "PNG or JPEG only"})
+		var req UploadURLRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
@@ -157,13 +154,14 @@ func main() {
 	})
 
 	router.POST("/api/saveImage", func(c *gin.Context) {
-		var req struct {
-			ObjectKey   string `json:"objectKey"`
-			FileName    string `json:"fileName"`
-			ContentType string `binding:"required,oneof=image/png image/jpeg"`
-			Size        int64  `json:"size"`
+		type SaveImageRequest struct {
+			ObjectKey   string `json:"objectKey" binding:"required"`
+			FileName    string `json:"fileName" binding:"required"`
+			ContentType string `json:"contentType" binding:"required,oneof=image/png image/jpeg"`
+			Size        int64  `json:"size" binding:"required,gt=0"`
 		}
-		if err := c.BindJSON(&req); err != nil {
+		var req SaveImageRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 			return
 		}
